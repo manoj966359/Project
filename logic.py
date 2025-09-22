@@ -14,6 +14,16 @@ if not api_key:
 
 client = OpenAI(api_key=api_key)
 
+
+def get_mysql_connection(database=None):
+    return mysql.connector.connect(
+        host=os.getenv("MYSQL_HOST"),
+        user=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_PASSWORD"),
+        database=database
+    )
+
+
 @st.cache_data(ttl=600)
 def get_databases():
     conn = mysql.connector.connect(host='localhost', user='root', password='root')
@@ -181,7 +191,10 @@ When filtering or grouping by month or date, always:
 - Avoid dynamic SQL construction that could lead to injection
 - Validate that all referenced tables and columns exist in the schema
 - Use parameterized approaches when dealing with user input values
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0256f26580601c3a2eb16fc13f376ae5ba76785
 Relevant tables/columns for this query: {', '.join(relevant_matches)}
 If dates are stored as text in DD-MM-YYYY format, convert them with STR_TO_DATE. Example:
   DATE_FORMAT(STR_TO_DATE(Disbursement date, '%d-%m-%Y'), '%b-%y') AS MonthYear
