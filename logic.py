@@ -18,7 +18,7 @@ client = OpenAI(api_key=api_key)
 host = st.secrets["MYSQL_HOST"]
 user = st.secrets["MYSQL_USER"]
 password = st.secrets["MYSQL_PASSWORD"]
-database = st.secrets["MYSQL_DATABASE"]
+
 
 
 @st.cache_data(ttl=600)
