@@ -181,13 +181,7 @@ When filtering or grouping by month or date, always:
 - Avoid dynamic SQL construction that could lead to injection
 - Validate that all referenced tables and columns exist in the schema
 - Use parameterized approaches when dealing with user input values
-### OUTPUT FORMAT
-- Return ONLY the SQL query without markdown formatting
-- Include brief comments for complex logic
-- Ensure query is executable and syntactically correct
-- Use proper indentation for readability
-Return only valid MySQL SQL SELECT query.
-User request: {prompt}
+
 Relevant tables/columns for this query: {', '.join(relevant_matches)}
 If dates are stored as text in DD-MM-YYYY format, convert them with STR_TO_DATE. Example:
   DATE_FORMAT(STR_TO_DATE(Disbursement date, '%d-%m-%Y'), '%b-%y') AS MonthYear
