@@ -1,0 +1,8 @@
+streamlit
+mysql-connector-python
+openai
+numpy
+scikit-learn
+pandas
+python-dotenv
+openpyxl
