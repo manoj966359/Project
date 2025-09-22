@@ -120,6 +120,90 @@ When filtering or grouping by month or date, always:
 - Enclose identifiers with spaces or special characters in backticks
 - Support date conversion formats carefully
 - Validate table and column names referenced
+Relevant tables/columns for this query: {', '.join(relevant_matches)}
+If dates are stored as text in DD-MM-YYYY format, convert them with STR_TO_DATE. Example:
+  DATE_FORMAT(STR_TO_DATE(Disbursement date, '%d-%m-%Y'), '%b-%y') AS MonthYear
+When filtering or grouping by month or date, always:
+- Use DATE_FORMAT(STR_TO_DATE(...)) for consistent grouping
+- Include all non-aggregated columns in the GROUP BY clause
+- Do not use non-grouped columns in ORDER BY without aggregation
+#### Aggregation & Grouping
+- Include ALL non-aggregated columns in GROUP BY clause
+- Never use non-grouped columns in ORDER BY unless they are aggregated
+- Wrap all aggregated columns with COALESCE to handle NULLs: `SUM(COALESCE(...))`
+- Use HAVING clause for filtering aggregated results, not WHERE
+...
+### OUTPUT FORMAT
+- Ensure group by compliance rules are strictly followed.
+### CORE SQL GENERATION RULES
+#### Identifier & Alias Management
+- Always alias duplicate column names using unique descriptive names with `AS`
+  Example: SELECT t1.ApplicationId AS App_ID_Primary, t2.ApplicationId AS App_ID_Secondary
+- Use meaningful table aliases (avoid generic aliases like t1, t2, s1, sd1)
+- Enclose all identifiers with spaces, special characters, or reserved words in backticks: `column name`
+- Never use square brackets [ ] or positional references like [2]
+- Use full table names when aliases are ambiguous
+#### Date & Time Handling
+- For dates in 'DD-MM-YYYY' format:
+  `DATE_FORMAT(STR_TO_DATE(`date_column`, '%d-%m-%Y'), '%Y-%m-%d')`
+- For dates in 'DD-MM-YYYY  HH:MM:SS' format:
+  `DATE_FORMAT(STR_TO_DATE(`datetime_column`, '%d-%m-%Y  %H:%i:%s'), '%Y-%m-%d %H:%i:%s')`
+- Always use STR_TO_DATE for text date conversion before filtering or grouping
+- Use DATE_FORMAT for consistent date grouping and display
+-If dates are stored as text in 'DD-MM-YYYY  HH:MM:SS' format, convert them with STR_TO_DATE using format '%d-%m-%Y  %H:%i:%s'. Example:
+  DATE_FORMAT(STR_TO_DATE(`Disbursement date`, '%d-%m-%Y  %H:%i:%s'), '%b-%y') AS MonthYear
+#### Aggregation & Grouping
+- Wrap all aggregated columns with COALESCE to handle NULLs: `SUM(COALESCE(`amount`, 0))`
+- Include ALL non-aggregated columns in GROUP BY clause
+- Never use non-grouped columns in ORDER BY unless they are aggregated
+- Use HAVING clause for filtering aggregated results, not WHERE
+#### JOIN Operations
+- Explicitly specify JOIN types (INNER, LEFT, RIGHT, FULL OUTER)
+- Always include proper ON conditions for joins
+- Use table aliases consistently throughout the query
+- Consider performance implications of join order
+#### String & Text Operations
+- Use proper MySQL string functions: CONCAT(), SUBSTRING(), TRIM(), UPPER(), LOWER()
+- Use LIKE with wildcards % for pattern matching
+- Use REGEXP for complex pattern matching when needed
+- Handle case sensitivity appropriately
+#### NULL Handling
+- Use IS NULL / IS NOT NULL for null comparisons
+- Use COALESCE() or IFNULL() for default values
+- Consider NULL behavior in aggregations and comparisons
+#### Query Optimization
+- Use appropriate indexes (mention in comments when relevant)
+- Limit result sets when possible using LIMIT clause
+- Use EXISTS instead of IN for subqueries when appropriate
+- Avoid SELECT * unless specifically requested
+#### Security & Validation
+- Never generate queries that could lead to data modification without explicit request
+- Avoid dynamic SQL construction that could lead to injection
+- Validate that all referenced tables and columns exist in the schema
+- Use parameterized approaches when dealing with user input values
+### OUTPUT FORMAT
+- Return ONLY the SQL query without markdown formatting
+- Include brief comments for complex logic
+- Ensure query is executable and syntactically correct
+- Use proper indentation for readability
+Return only valid MySQL SQL SELECT query.
+User request: {prompt}
+Relevant tables/columns for this query: {', '.join(relevant_matches)}
+If dates are stored as text in DD-MM-YYYY format, convert them with STR_TO_DATE. Example:
+  DATE_FORMAT(STR_TO_DATE(Disbursement date, '%d-%m-%Y'), '%b-%y') AS MonthYear
+When filtering or grouping by month or date, always:
+- Use DATE_FORMAT(STR_TO_DATE(...)) for consistent grouping
+- Include all non-aggregated columns in the GROUP BY clause
+- Never use non-grouped columns in ORDER BY unless aggregated
+#### Aggregation & Grouping
+- Include ALL non-aggregated columns in GROUP BY clause
+- Wrap aggregated columns with COALESCE
+- Use HAVING for filtering aggregated values
+#### SQL Query Rules:
+- Use proper table aliases
+- Enclose identifiers with spaces or special characters in backticks
+- Support date conversion formats carefully
+- Validate table and column names referenced
 ### OUTPUT FORMAT
 - Return ONLY the SQL query without markdown formatting
 - Include brief comments for complex logic
