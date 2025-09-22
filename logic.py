@@ -23,7 +23,6 @@ def get_mysql_connection(database=None):
         database=database
     )
 
-
 @st.cache_data(ttl=600)
 def get_databases():
     conn = mysql.connector.connect(host='localhost', user='root', password='root')
@@ -143,8 +142,6 @@ When filtering or grouping by month or date, always:
 - Wrap all aggregated columns with COALESCE to handle NULLs: `SUM(COALESCE(...))`
 - Use HAVING clause for filtering aggregated results, not WHERE
 ...
-### OUTPUT FORMAT
-- Ensure group by compliance rules are strictly followed.
 ### CORE SQL GENERATION RULES
 #### Identifier & Alias Management
 - Always alias duplicate column names using unique descriptive names with `AS`
