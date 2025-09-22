@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import io
 
-# Import custom modules
+
 from logic import (
     get_databases, get_tables, get_schema_details, get_schema_embeddings,
     semantic_match, prompt_to_sql_openai, run_query
@@ -13,7 +13,6 @@ from ui_components import (
     render_table_selection, render_query_input, render_sidebar
 )
 
-# Page configuration
 st.set_page_config(
     page_title="Metatalk - Text to SQL",
     page_icon="📊",
