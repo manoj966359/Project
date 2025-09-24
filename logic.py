@@ -2,15 +2,18 @@ import os
 import mysql.connector
 import numpy as np
 from dotenv import load_dotenv
+
 from openai import OpenAI
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 
 # Load environment variables from .env
 load_dotenv()
+load_dotenv()  # load environment variables from .env file
+
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    raise ValueError("OPENAI_API_KEY is not set in the .env file")
+    raise ValueError("OPENAI_API_KEY not found in environment variables")
 
 client = OpenAI(api_key=api_key)
 
