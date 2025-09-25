@@ -7,3 +7,4 @@ pandas
 python-dotenv
 openpyxl
 google-generativeai
+langchain-google-genai
