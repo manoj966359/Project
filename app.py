@@ -2,11 +2,10 @@ import streamlit as st
 import pandas as pd
 import io
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.sql_database import SQLDatabase
+from langchain_community.utilities import SQLDatabase
 from langchain.agents.agent_toolkits import create_sql_agent, SQLDatabaseToolkit
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
- 
- 
+
 from logic import (
     get_databases, get_tables, get_schema_details, get_schema_embeddings,
     semantic_match, prompt_to_sql_openai, run_query
