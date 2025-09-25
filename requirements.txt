@@ -6,3 +6,4 @@ scikit-learn
 pandas
 python-dotenv
 openpyxl
+google-generativeai

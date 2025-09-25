@@ -2,27 +2,23 @@ import os
 import mysql.connector
 import numpy as np
 from dotenv import load_dotenv
-
-from openai import OpenAI
+import google.generativeai as genai
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 
 # Load environment variables from .env
 load_dotenv()
-load_dotenv()  # load environment variables from .env file
 
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
-    raise ValueError("OPENAI_API_KEY not found in environment variables")
+    raise ValueError("GOOGLE_API_KEY not found in environment variables")
 
-client = OpenAI(api_key=api_key)
-
+# Configure Gemini
+genai.configure(api_key=api_key)
 
 host = st.secrets["MYSQL_HOST"]
 user = st.secrets["MYSQL_USER"]
 password = st.secrets["MYSQL_PASSWORD"]
-
-
 
 @st.cache_data(ttl=600)
 def get_databases():
@@ -83,14 +79,29 @@ def get_schema_embeddings(schema_dict):
             key = f"{table}.{col}"
             keys.append(key)
             texts.append(key)
-    response = client.embeddings.create(model="text-embedding-3-small", input=texts)
-    embeddings = [np.array(data.embedding) for data in response.data]
+    
+    # Use Gemini's embedding model
+    embeddings = []
+    for text in texts:
+        result = genai.embed_content(
+            model="models/text-embedding-004",
+            content=text,
+            task_type="retrieval_document"
+        )
+        embeddings.append(np.array(result['embedding']))
+    
     emb_dict = dict(zip(keys, embeddings))
     return emb_dict
 
 def semantic_match(user_query, embeddings_dict, top_n=3):
-    query_emb = client.embeddings.create(model="text-embedding-3-small", input=user_query).data[0].embedding
-    query_vec = np.array(query_emb)
+    # Get embedding for user query
+    query_result = genai.embed_content(
+        model="models/text-embedding-004",
+        content=user_query,
+        task_type="retrieval_query"
+    )
+    query_vec = np.array(query_result['embedding'])
+    
     candidates = []
     for key, emb in embeddings_dict.items():
         sim = cosine_similarity([query_vec], [emb])[0][0]
@@ -109,7 +120,7 @@ def extract_valid_sql(sql_text):
             return '\n'.join(lines[i:]).strip()
     return sql_text
 
-def prompt_to_sql_openai(prompt, tables, schema_info, relevant_matches):
+def prompt_to_sql_gemini(prompt, tables, schema_info, relevant_matches):
     system_prompt = f"""
 You are an expert MySQL query generator.
 The database has the following schema:
@@ -214,18 +225,23 @@ When filtering or grouping by month or date, always:
 Return only valid MySQL SQL SELECT query.
 User request: {prompt}
 """
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are an expert SQL query generator."},
-            {"role": "user", "content": system_prompt}
-        ],
-        temperature=0,
+    
+    # Use Gemini for chat completion
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    response = model.generate_content(
+        f"You are an expert SQL query generator.\n\n{system_prompt}",
+        generation_config=genai.types.GenerationConfig(temperature=0)
     )
-    sql_query = extract_valid_sql(response.choices[0].message.content)
+    
+    sql_query = extract_valid_sql(response.text)
     if not sql_query.lower().startswith(("select", "insert", "update", "delete", "with")):
         raise ValueError("The generated content does not appear to be a valid SQL query.")
     return sql_query
+
+# Keep the old function name for backward compatibility
+def prompt_to_sql_openai(prompt, tables, schema_info, relevant_matches):
+    """Backward compatibility wrapper - now uses Gemini instead of OpenAI"""
+    return prompt_to_sql_gemini(prompt, tables, schema_info, relevant_matches)
 
 def run_query(database, query):
     conn = mysql.connector.connect(host='localhost', user='root', password='root', database=database)
